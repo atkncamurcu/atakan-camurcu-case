@@ -22,8 +22,8 @@
         </classes>
     </test>
     
-    <!-- Firefox Browser Test (optional) -->
-    <test name="Firefox_Tests" preserve-order="true" enabled="false">
+    <!-- Firefox Browser Test -->
+    <test name="Firefox_Tests" preserve-order="true" enabled="true">
         <parameter name="browser" value="firefox"/>
         <classes>
             <class name="tests.InsiderAutomationTest">
