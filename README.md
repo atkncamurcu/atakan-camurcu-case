@@ -105,10 +105,10 @@ mvn clean test -Dsurefire.suiteXmlFiles=src/test/resources/testng.xml
 ### Run with Specific Browser
 ```bash
 # Chrome (default)
-mvn clean test -Pbrowser=chrome
+mvn clean test -Pbrowser-chrome
 
 # Firefox
-mvn clean test -Pbrowser=firefox
+mvn clean test -Pbrowser-firefox
 ```
 
 ### Run in Headless Mode
