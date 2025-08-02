@@ -64,7 +64,7 @@ A comprehensive Selenium WebDriver automation framework built with Java, TestNG,
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/atkncamurcu/atakan-camurcu-case
-cd atakan-camurcu-case
+cd atakan-camurcu-case/selenium-automation
 ```
 
 ### 2. Install Dependencies
