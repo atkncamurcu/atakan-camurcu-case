@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="InsiderAutomationSuite" verbose="1" parallel="false">
+    
+    <listeners>
+        <listener class-name="listeners.ScreenshotListener"/>
+    </listeners>
+    
+    <!-- Chrome Browser Test -->
+    <test name="Chrome_Tests" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="tests.InsiderAutomationTest">
+                <methods>
+                    <include name="testInsiderAutomationScenario"/>
+                    <include name="testHomePageLoad"/>
+                    <include name="testCareersPageNavigation"/>
+                    <include name="testQAJobsFiltering"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+    
+    <!-- Firefox Browser Test (optional) -->
+    <test name="Firefox_Tests" preserve-order="true" enabled="false">
+        <parameter name="browser" value="firefox"/>
+        <classes>
+            <class name="tests.InsiderAutomationTest">
+                <methods>
+                    <include name="testInsiderAutomationScenario"/>
+                    <include name="testHomePageLoad"/>
+                    <include name="testCareersPageNavigation"/>
+                    <include name="testQAJobsFiltering"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+    
+</suite>
