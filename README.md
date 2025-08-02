@@ -1,6 +1,14 @@
-# Atakan Camurcu Case Demo
+# Atakan Camurcu Test Automation Portfolio
 
-This repository contains various automation and test projects for demonstration purposes.
+This repository contains comprehensive automation and API testing frameworks for demonstration purposes, showcasing modern testing practices and tools.
+
+## Projects Overview
+
+This portfolio includes two complete test automation frameworks:
+- **Selenium WebDriver Framework** for UI automation testing
+- **REST API Testing Framework** for comprehensive API testing
+
+Both projects follow industry best practices with clean architecture, proper reporting, and maintainable code structure.
 
 ## Projects
 
@@ -26,6 +34,31 @@ mvn clean test
 
 For more details, check the project [README](/selenium-automation/README.md).
 
-### 2. [Project 2 - Coming Soon]
+### 2. API Test Framework
 
-### 3. [Project 3 - Coming Soon]
+**Directory:** [/api-test](/api-test)
+
+A comprehensive REST API testing framework for Swagger Petstore using Java 11, TestNG, RestAssured, Allure reporting, and JavaFaker for realistic test data generation.
+
+**Key Features:**
+- Complete CRUD testing for /pet endpoints
+- Realistic test data generation with JavaFaker
+- Advanced Allure reporting with request/response details
+- Test isolation with proper setup/cleanup
+- Exception handling for negative scenarios
+- Comprehensive DTO models (Pet, Category, Tag, ApiResponse)
+
+**How to run:**
+```bash
+cd api-test
+mvn clean test
+```
+
+**Generate Allure Report:**
+```bash
+cd api-test
+mvn clean test
+mvn io.qameta.allure:allure-maven:report
+```
+
+For more details, check the project [README](/api-test/README.md).
