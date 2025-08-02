@@ -39,9 +39,14 @@ public class BaseTest {
     @Parameters({"browser"})
     public void setUp(@Optional String browserParam) {
         try {
-            browser = (browserParam != null) ? browserParam : ConfigReader.getBrowser();
+            // First check system property, then parameter, then config file
+            String systemBrowser = System.getProperty("browser");
+            browser = systemBrowser != null ? systemBrowser : 
+                     (browserParam != null) ? browserParam : 
+                     ConfigReader.getBrowser();
             
             logger.info("Setting up test with browser: {}", browser);
+            logger.info("Browser from system property: {}", systemBrowser);
             
             driver = DriverFactory.createDriver(browser);
             
