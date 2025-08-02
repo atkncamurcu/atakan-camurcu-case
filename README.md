@@ -6,7 +6,6 @@ A comprehensive Selenium WebDriver automation framework built with Java, TestNG,
 
 ```
 ├── pom.xml                             # Maven project configuration
-├── run-tests.sh                        # Bash script for test execution with options
 ├── src/
 │   ├── main/java/
 │   │   ├── pages/                      # Page Object Model classes
@@ -64,8 +63,8 @@ A comprehensive Selenium WebDriver automation framework built with Java, TestNG,
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
-cd insider-automation-framework
+git clone https://github.com/atkncamurcu/atakan-camurcu-case
+cd atakan-camurcu-case
 ```
 
 ### 2. Install Dependencies
@@ -166,35 +165,6 @@ Complete end-to-end test covering:
 - Tests filtering functionality
 - Validates job list population
 
-## 🔧 Configuration Options
-
-### Browser Configuration
-```properties
-# Supported browsers: chrome, firefox
-browser=chrome
-
-# Run in headless mode
-headless=false
-```
-
-### Wait Configuration
-```properties
-# Implicit wait timeout (seconds)
-implicit.wait=10
-
-# Explicit wait timeout (seconds)
-explicit.wait=20
-```
-
-### Screenshot Configuration
-```properties
-# Enable/disable screenshot on failure
-screenshot.on.failure=true
-
-# Screenshot save path
-screenshot.path=test-output/screenshots/
-```
-
 ## 🏗️ Framework Components
 
 ### Page Objects
@@ -212,42 +182,3 @@ screenshot.path=test-output/screenshots/
 ### Test Infrastructure
 - **BaseTest**: Common test setup and teardown
 - **ScreenshotListener**: TestNG listener for failure screenshots
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Driver Issues**
-   - Ensure Chrome/Firefox browsers are installed
-   - WebDriverManager handles driver downloads automatically
-
-2. **Test Failures**
-   - Check screenshots in `test-output/screenshots/`
-   - Review logs in `test-output/logs/`
-   - Verify website accessibility
-
-3. **Maven Issues**
-   ```bash
-   mvn clean install -U
-   ```
-
-4. **Java Version Issues**
-   - Ensure Java 11+ is installed and configured
-   ```bash
-   java -version
-   ```
-
-### Debugging
-- Enable debug logging by updating `log4j2.xml`
-- Use IDE debugging with TestNG integration
-- Review browser console logs if needed
-
-## 📈 Best Practices Implemented
-
-- **Page Object Model**: Clean separation of page logic and tests
-- **Explicit Waits**: No hard-coded sleep statements
-- **Configuration Management**: Externalized configuration
-- **Error Handling**: Comprehensive exception handling and logging
-- **Screenshot Capture**: Automatic failure evidence
-- **Cross-browser Support**: Parameterized browser execution
-- **Clean Code**: Readable, maintainable, and well-documented code
