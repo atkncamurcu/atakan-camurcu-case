@@ -257,4 +257,24 @@ public class PetHelper {
         
         return tags;
     }
+    
+    /**
+     * Upload an image for a pet
+     * @param petId ID of the pet to upload image for
+     * @param filePath Path to the image file
+     * @param additionalMetadata Additional metadata for the image
+     * @return Response of the API call
+     */
+    public static Response uploadPetImage(Integer petId, String filePath, String additionalMetadata) {
+        return given()
+                .header("api_key", "special-key")
+                .contentType("multipart/form-data")
+                .multiPart("file", new java.io.File(filePath))
+                .formParam("additionalMetadata", additionalMetadata)
+                .when()
+                .post("/pet/" + petId + "/uploadImage")
+                .then()
+                .extract()
+                .response();
+    }
 }
