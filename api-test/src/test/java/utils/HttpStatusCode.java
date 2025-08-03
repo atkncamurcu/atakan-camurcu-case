@@ -47,42 +47,4 @@ public enum HttpStatusCode {
     public String toString() {
         return code + " " + description;
     }
-    
-    /**
-     * Get HttpStatusCode enum by status code number
-     * @param code HTTP status code number
-     * @return HttpStatusCode enum or null if not found
-     */
-    public static HttpStatusCode fromCode(int code) {
-        for (HttpStatusCode status : values()) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        return null;
-    }
-    
-    /**
-     * Check if status code indicates success (2xx)
-     * @return true if status code is in 2xx range
-     */
-    public boolean isSuccess() {
-        return code >= 200 && code < 300;
-    }
-    
-    /**
-     * Check if status code indicates client error (4xx)
-     * @return true if status code is in 4xx range
-     */
-    public boolean isClientError() {
-        return code >= 400 && code < 500;
-    }
-    
-    /**
-     * Check if status code indicates server error (5xx)
-     * @return true if status code is in 5xx range
-     */
-    public boolean isServerError() {
-        return code >= 500 && code < 600;
-    }
 }
