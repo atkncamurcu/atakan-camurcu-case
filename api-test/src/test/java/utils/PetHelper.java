@@ -21,12 +21,10 @@ public class PetHelper {
     private static final Faker faker = new Faker();
     private static final Random random = new Random();
     
-    // Pet categories for realistic test data
     private static final String[] PET_CATEGORIES = {
         "Dogs", "Cats", "Birds", "Fish", "Reptiles", "Small Animals", "Farm Animals"
     };
     
-    // Pet tags for realistic test data
     private static final String[] PET_TAGS = {
         "friendly", "playful", "calm", "energetic", "loyal", "intelligent", 
         "protective", "social", "independent", "gentle", "active", "cuddly"
@@ -39,6 +37,7 @@ public class PetHelper {
      */
     public static Response createPet(Pet pet) {
         return given()
+                .header("api_key", "special-key")
                 .body(pet)
                 .when()
                 .post("/pet")
@@ -54,6 +53,7 @@ public class PetHelper {
      */
     public static Response getPetById(Integer petId) {
         return given()
+                .header("api_key", "special-key")
                 .when()
                 .get("/pet/" + petId)
                 .then()
@@ -68,9 +68,25 @@ public class PetHelper {
      */
     public static Response updatePet(Pet pet) {
         return given()
+                .header("api_key", "special-key")
                 .body(pet)
                 .when()
                 .put("/pet")
+                .then()
+                .extract()
+                .response();
+    }
+
+    /**
+     * Get a pet by ID with custom ID string (for negative testing)
+     * @param petIdString String representation of the pet ID (could be invalid)
+     * @return Response of the API call
+     */
+    public static Response getPetByIdString(String petIdString) {
+        return given()
+                .header("api_key", "special-key")
+                .when()
+                .get("/pet/" + petIdString)
                 .then()
                 .extract()
                 .response();
@@ -83,6 +99,7 @@ public class PetHelper {
      */
     public static Response deletePet(Integer petId) {
         return given()
+                .header("api_key", "special-key")
                 .when()
                 .delete("/pet/" + petId)
                 .then()
@@ -97,6 +114,7 @@ public class PetHelper {
      */
     public static Response createPetWithInvalidBody(String invalidBody) {
         return given()
+                .header("api_key", "special-key")
                 .body(invalidBody)
                 .when()
                 .post("/pet")
@@ -111,16 +129,14 @@ public class PetHelper {
      */
     public static Pet createSimplePet() {
         Pet pet = new Pet();
-        pet.setId(faker.number().numberBetween(1, 999999)); // Random ID
+        pet.setId(faker.number().numberBetween(1, 999999));
         pet.setName(faker.dog().name());
         pet.setStatus(Pet.Status.AVAILABLE);
         pet.setPhotoUrls(Arrays.asList(generatePhotoUrl()));
         
-        // Add category to make it more realistic
         Category category = createRandomCategory();
         pet.setCategory(category);
         
-        // Add 1-2 random tags for simple pet
         List<Tag> tags = createRandomTags(1, 2);
         pet.setTags(tags);
         
@@ -135,16 +151,14 @@ public class PetHelper {
      */
     public static Pet createSimplePet(String name, String status) {
         Pet pet = new Pet();
-        pet.setId(faker.number().numberBetween(1, 999999)); // Random ID
+        pet.setId(faker.number().numberBetween(1, 999999));
         pet.setName(name);
         pet.setStatus(status);
         pet.setPhotoUrls(Arrays.asList(generatePhotoUrl()));
         
-        // Add category to make it more realistic
         Category category = createRandomCategory();
         pet.setCategory(category);
         
-        // Add 1-2 random tags for simple pet
         List<Tag> tags = createRandomTags(1, 2);
         pet.setTags(tags);
         
@@ -157,16 +171,14 @@ public class PetHelper {
      */
     public static Pet createDetailedPet() {
         Pet pet = new Pet();
-        pet.setId(faker.number().numberBetween(1, 999999)); // Random ID
+        pet.setId(faker.number().numberBetween(1, 999999));
         pet.setName(faker.dog().name());
         pet.setStatus(Pet.Status.AVAILABLE);
         pet.setPhotoUrls(Arrays.asList(generatePhotoUrl(), generatePhotoUrl()));
         
-        // Add category with random realistic data
         Category category = createRandomCategory();
         pet.setCategory(category);
         
-        // Add 2-4 random tags for detailed pet
         List<Tag> tags = createRandomTags(2, 4);
         pet.setTags(tags);
         
@@ -183,16 +195,14 @@ public class PetHelper {
      */
     public static Pet createDetailedPet(String name, String status, Integer categoryId, String categoryName) {
         Pet pet = new Pet();
-        pet.setId(faker.number().numberBetween(1, 999999)); // Random ID
+        pet.setId(faker.number().numberBetween(1, 999999));
         pet.setName(name);
         pet.setStatus(status);
         pet.setPhotoUrls(Arrays.asList(generatePhotoUrl(), generatePhotoUrl()));
-        
-        // Add category
+
         Category category = new Category(categoryId, categoryName);
         pet.setCategory(category);
         
-        // Add random tags
         List<Tag> tags = createRandomTags();
         pet.setTags(tags);
         
@@ -225,7 +235,7 @@ public class PetHelper {
      * @return List of random tags
      */
     public static List<Tag> createRandomTags() {
-        return createRandomTags(2, 3); // Default 2-3 tags
+        return createRandomTags(2, 3);
     }
 
     /**
