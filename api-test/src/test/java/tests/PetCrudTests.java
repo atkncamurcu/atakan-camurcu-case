@@ -375,4 +375,57 @@ public class PetCrudTests extends BaseTest {
         
         logTestEnd("testUpdatePetWithInvalidDataTypes");
     }
+    
+    @Test(description = "Delete pet with invalid ID (string)")
+    @Story("Delete Pet - Negative")
+    public void testDeletePetWithInvalidIdType() {
+        logTestStart("testDeletePetWithInvalidIdType");
+
+        String invalidId = "abc" + faker.letterify("????");
+
+        try {
+            Response response = PetHelper.deletePetByIdString(invalidId);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.BAD_REQUEST.getCode());
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("404") || e.getMessage().contains("Not Found"),
+                    "Expected 404 error for invalid ID type");
+        }
+        
+        logTestEnd("testDeletePetWithInvalidIdType");
+    }
+    
+    @Test(description = "Delete pet with negative ID")
+    @Story("Delete Pet - Negative")
+    public void testDeletePetWithNegativeId() {
+        logTestStart("testDeletePetWithNegativeId");
+
+        Integer negativeId = -1 * faker.number().numberBetween(1, 1000000);
+
+        try {
+            Response response = PetHelper.deletePet(negativeId);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.NOT_FOUND.getCode());
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("404"), "Expected 404 error for negative ID");
+        }
+        
+        logTestEnd("testDeletePetWithNegativeId");
+    }
+    
+    @Test(description = "Find pets with invalid status value")
+    @Story("Find Pet - Negative")
+    public void testFindPetsByInvalidStatus() {
+        logTestStart("testFindPetsByInvalidStatus");
+
+        String invalidStatus = "invalid_" + faker.lorem().word();
+        
+        try {
+            Response response = PetHelper.findPetsByInvalidStatus(invalidStatus);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.BAD_REQUEST.getCode());
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("400") || e.getMessage().contains("Bad Request"), 
+                    "Expected 400 error for invalid status value");
+        }
+        
+        logTestEnd("testFindPetsByInvalidStatus");
+    }
 }
