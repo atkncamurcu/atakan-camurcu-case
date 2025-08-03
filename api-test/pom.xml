@@ -95,6 +95,13 @@
             <artifactId>javafaker</artifactId>
             <version>1.0.2</version>
         </dependency>
+        
+        <!-- Awaitility for polling and async testing -->
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>
