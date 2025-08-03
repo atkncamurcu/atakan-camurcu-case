@@ -108,22 +108,6 @@ public class PetHelper {
     }
     
     /**
-     * Find pets by status
-     * @param status Status value(s) to filter by (available, pending, sold)
-     * @return Response of the API call
-     */
-    public static Response findPetsByStatus(String status) {
-        return given()
-                .header("api_key", "special-key")
-                .queryParam("status", status)
-                .when()
-                .get("/pet/findByStatus")
-                .then()
-                .extract()
-                .response();
-    }
-    
-    /**
      * Find pets by invalid status (for negative testing)
      * @param invalidStatus Invalid status value to test with
      * @return Response of the API call
@@ -207,28 +191,6 @@ public class PetHelper {
     }
 
     /**
-     * Create a simple Pet DTO for testing with custom name and status
-     * @param name Pet name
-     * @param status Pet status
-     * @return Pet DTO
-     */
-    public static Pet createSimplePet(String name, String status) {
-        Pet pet = new Pet();
-        pet.setId(faker.number().numberBetween(1, 999999));
-        pet.setName(name);
-        pet.setStatus(status);
-        pet.setPhotoUrls(Arrays.asList(generatePhotoUrl()));
-        
-        Category category = createRandomCategory();
-        pet.setCategory(category);
-        
-        List<Tag> tags = createRandomTags(1, 2);
-        pet.setTags(tags);
-        
-        return pet;
-    }
-
-    /**
      * Create a Pet DTO with full details using realistic data
      * @return Pet DTO with category and tags
      */
@@ -243,30 +205,6 @@ public class PetHelper {
         pet.setCategory(category);
         
         List<Tag> tags = createRandomTags(2, 4);
-        pet.setTags(tags);
-        
-        return pet;
-    }
-
-    /**
-     * Create a Pet DTO with full details
-     * @param name Pet name
-     * @param status Pet status
-     * @param categoryId Category ID
-     * @param categoryName Category name
-     * @return Pet DTO with category and tags
-     */
-    public static Pet createDetailedPet(String name, String status, Integer categoryId, String categoryName) {
-        Pet pet = new Pet();
-        pet.setId(faker.number().numberBetween(1, 999999));
-        pet.setName(name);
-        pet.setStatus(status);
-        pet.setPhotoUrls(Arrays.asList(generatePhotoUrl(), generatePhotoUrl()));
-
-        Category category = new Category(categoryId, categoryName);
-        pet.setCategory(category);
-        
-        List<Tag> tags = createRandomTags();
         pet.setTags(tags);
         
         return pet;
@@ -318,21 +256,5 @@ public class PetHelper {
         }
         
         return tags;
-    }
-
-    /**
-     * Generate a random pet name based on animal type
-     * @param animalType Type of animal (dog, cat, bird, etc.)
-     * @return Random pet name
-     */
-    public static String generatePetName(String animalType) {
-        switch (animalType.toLowerCase()) {
-            case "dog":
-                return faker.dog().name();
-            case "cat":
-                return faker.cat().name();
-            default:
-                return faker.name().firstName();
-        }
     }
 }
