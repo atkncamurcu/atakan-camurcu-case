@@ -30,22 +30,18 @@ class SearchTasks(TaskSet):
         """Called when a user starts - simulate visiting homepage first"""
         headers = get_request_headers()
         
-        # Use CloudScraper to bypass Cloudflare protection
         scraper = get_scraper()
         
         try:
-            # Add delay to simulate human behavior
             time.sleep(random.uniform(2.0, 4.0))
             
             print("🔍 Visiting n11.com homepage with CloudScraper...")
             base_url = self.user.host if hasattr(self.user, 'host') else "https://www.n11.com"
             response = scraper.get(f"{base_url}/")
             
-            # Simulate a client by handling the response
             if response and response.status_code == 200:
                 print("✅ Successfully accessed homepage!")
                 
-                # Use Locust client to track statistics
                 try:
                     self.user.environment.events.request.fire(
                         request_type="GET",
@@ -62,7 +58,6 @@ class SearchTasks(TaskSet):
                 status_code = response.status_code if response else "No response"
                 print(f"❌ Failed to access homepage: {status_code}")
                 
-                # Use Locust client to track statistics
                 try:
                     self.user.environment.events.request.fire(
                         request_type="GET",
@@ -77,7 +72,6 @@ class SearchTasks(TaskSet):
         except Exception as e:
             print(f"❌ Exception during homepage access: {str(e)}")
             
-            # Use Locust client to track statistics
             try:
                 self.user.environment.events.request.fire(
                     request_type="GET",
@@ -96,19 +90,15 @@ class SearchTasks(TaskSet):
         """
         scraper = get_scraper()
         
-        # Add natural delay
         time.sleep(random.uniform(1.0, 2.5))
         
-        # Get base URL from user or use default
         base_url = self.user.host if hasattr(self.user, 'host') else "https://www.n11.com"
         
-        # Construct search URL
         search_url = f"{base_url}/arama?q={keyword}"
         
         print(f"🔍 Searching for '{keyword}'...")
         
         try:
-            # Use cloudscraper to bypass protection
             start_time = time.time()
             response = scraper.get(search_url)
             response_time = (time.time() - start_time) * 1000  # ms
@@ -116,7 +106,6 @@ class SearchTasks(TaskSet):
             if response and response.status_code == 200:
                 print(f"✓ Search for '{keyword}' successful! Response time: {response_time:.2f}ms")
                 
-                # Log success to Locust
                 try:
                     self.user.environment.events.request.fire(
                         request_type="GET",
@@ -135,7 +124,6 @@ class SearchTasks(TaskSet):
                 status_code = response.status_code if response else "No response"
                 print(f"❌ Search for '{keyword}' failed: {status_code}")
                 
-                # Log failure to Locust
                 try:
                     self.user.environment.events.request.fire(
                         request_type="GET",
@@ -153,7 +141,6 @@ class SearchTasks(TaskSet):
         except Exception as e:
             print(f"❌ Exception during search for '{keyword}': {str(e)}")
             
-            # Log exception to Locust
             try:
                 self.user.environment.events.request.fire(
                     request_type="GET",
@@ -227,7 +214,6 @@ class SearchTasks(TaskSet):
         """
         print("🚀 Starting rapid consecutive searches...")
         
-        # Add longer delay before rapid searches
         time.sleep(random.uniform(3.0, 5.0))
         
         results = []
@@ -235,7 +221,6 @@ class SearchTasks(TaskSet):
             result = self._perform_search(keyword, f"Rapid Search {i+1}: {keyword}")
             results.append(result)
             
-            # Small delay between requests (shorter than usual)
             time.sleep(random.uniform(1.0, 1.5))
         
         success_count = sum(1 for r in results if r)
@@ -270,8 +255,6 @@ class SearchTasks(TaskSet):
         success = self._perform_search(keyword, "Search: Brand Keyword")
         
         if success:
-            # Optionally check results for brand relevance
-            # In a real implementation, you might want to validate brand presence in results
             time.sleep(random.uniform(2.0, 3.0))
     
     @task(2)
@@ -281,20 +264,16 @@ class SearchTasks(TaskSet):
         Performs search then applies filters to results
         Weight: 2
         """
-        # First perform a standard search
-        keyword = get_random_brand_keyword()  # Brands work well for filtering tests
+        keyword = get_random_brand_keyword()
         success = self._perform_search(keyword, "Search: Pre-Filter")
         
         if success:
             try:
                 # Add delay to simulate user looking at results
                 time.sleep(random.uniform(3.0, 5.0))
-                
-                # Apply a filter (price range)
-                # In n11.com, filters are applied via GET parameters
+
                 base_url = self.user.host if hasattr(self.user, 'host') else "https://www.n11.com"
                 
-                # Simulate clicking on a price filter (e.g., 1000-2000 TL)
                 filter_params = {
                     'q': keyword,
                     'minp': '1000',
@@ -313,7 +292,6 @@ class SearchTasks(TaskSet):
                 if response and response.status_code == 200:
                     print(f"✓ Filter applied successfully! Response time: {response_time:.2f}ms")
                     
-                    # Log success to Locust
                     try:
                         self.user.environment.events.request.fire(
                             request_type="GET",
@@ -330,7 +308,6 @@ class SearchTasks(TaskSet):
                     status_code = response.status_code if response else "No response"
                     print(f"❌ Filter application failed: {status_code}")
                     
-                    # Log failure
                     try:
                         self.user.environment.events.request.fire(
                             request_type="GET",
@@ -346,7 +323,6 @@ class SearchTasks(TaskSet):
             except Exception as e:
                 print(f"❌ Exception during filter application: {str(e)}")
                 
-                # Log exception
                 try:
                     self.user.environment.events.request.fire(
                         request_type="GET",
@@ -398,17 +374,14 @@ class SearchTasks(TaskSet):
         """
         print(f"🔄 Starting {REPEATED_SEARCH_COUNT} rapid repeated searches for '{REPEATED_SEARCH_TERM}'...")
         
-        # Add longer delay before rapid searches
         time.sleep(random.uniform(3.0, 5.0))
         
         success_count = 0
         response_times = []
         
         for i in range(REPEATED_SEARCH_COUNT):
-            # Use a custom task name to track each search separately
             task_name = f"Repeated Search {i+1}/{REPEATED_SEARCH_COUNT}: {REPEATED_SEARCH_TERM}"
             
-            # Track time manually for analysis
             start_time = time.time()
             result = self._perform_search(REPEATED_SEARCH_TERM, task_name)
             search_time = (time.time() - start_time) * 1000  # ms
@@ -417,10 +390,8 @@ class SearchTasks(TaskSet):
                 success_count += 1
                 response_times.append(search_time)
             
-            # Very short delay between requests to simulate rapid clicking
             time.sleep(random.uniform(0.5, 1.0))
         
-        # Calculate and report statistics
         if response_times:
             avg_time = sum(response_times) / len(response_times)
             min_time = min(response_times)
@@ -429,7 +400,6 @@ class SearchTasks(TaskSet):
             print(f"📊 Repeated search complete: {success_count}/{REPEATED_SEARCH_COUNT} successful")
             print(f"📈 Response times - Avg: {avg_time:.2f}ms, Min: {min_time:.2f}ms, Max: {max_time:.2f}ms")
             
-            # Look for performance degradation
             if len(response_times) >= 2:
                 first_half = response_times[:len(response_times)//2]
                 second_half = response_times[len(response_times)//2:]

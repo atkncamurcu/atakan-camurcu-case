@@ -30,14 +30,12 @@ class CloudScraperSession:
         
         browser = random.choice(browser_list)
         
-        # Create scraper with browser fingerprinting
         scraper = cloudscraper.create_scraper(
             browser=browser,
-            delay=5,  # Add delay between requests
+            delay=5,
             captcha={"provider": "return_response"}
         )
         
-        # Add headers from our headers.py
         headers = get_request_headers()
         for key, value in headers.items():
             scraper.headers[key] = value
@@ -48,22 +46,17 @@ class CloudScraperSession:
         """
         Perform GET request with rate limiting and retry logic
         """
-        # Add jitter for more natural behavior
         jitter = random.uniform(1.0, 3.0)
         time.sleep(jitter)
         
-        # Ensure URL is absolute
         if not url.startswith('http'):
             url = f"https://www.n11.com{'' if url.startswith('/') else '/'}{url}"
         
-        # Log request attempt
         print(f"🌐 Requesting: {url} with CloudScraper")
         
         try:
-            # Perform request with cloudscraper
             response = self.scraper.get(url, params=params, **kwargs)
             
-            # Log status code
             print(f"📡 Response status: {response.status_code}")
             
             return response
@@ -72,7 +65,6 @@ class CloudScraperSession:
             print(f"❌ CloudScraper request failed: {str(e)}")
             return None
 
-# Create a singleton instance for reuse
 scraper_session = CloudScraperSession()
 
 def get_scraper():

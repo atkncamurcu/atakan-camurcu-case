@@ -5,10 +5,6 @@ N11.com Header Search Module Performance Test
 Locust performance testing project for n11.com search functionality
 Tests various scenarios including positive, negative, and edge cases
 with realistic browser simulation and Cloudflare bypass.
-
-Author: Performance Testing Engineer
-Target: n11.com header search module
-Framework: Locust 2.28.0
 """
 
 from locust import HttpUser, between, events
@@ -52,14 +48,11 @@ class N11SearchUser(HttpUser):
     Includes realistic wait times and browser behavior simulation
     using CloudScraper to bypass Cloudflare protections
     """
-    
-    # Task set containing all search scenarios
+
     tasks = [SearchTasks]
-    
-    # Wait time between tasks (2-5 seconds) - realistic user behavior
+
     wait_time = between(2, 5)
     
-    # User weight (for multiple user types, currently single user)
     weight = 1
     
     def on_start(self):
@@ -67,17 +60,13 @@ class N11SearchUser(HttpUser):
         Called when user starts testing session
         Sets up initial state and logs user session start
         """
-        # Add randomization to make each user unique
         self.session_id = f"user_{random.randint(1000, 9999)}"
         
-        # Session start time and request counter
         self.start_time = time.time()
         self.requests_made = 0
         
-        # Randomized starting delay to prevent synchronized requests
         time.sleep(random.uniform(0.1, 1.0))
         
-        # Log startup
         logger.info(f"🔍 N11 Search User {self.session_id} started - Beginning search behavior simulation")
         logger.info(f"🎯 Target: {self.host} header search module")
         logger.info(f"📊 Test scenarios: Positive, Negative, Edge cases")
@@ -88,18 +77,15 @@ class N11SearchUser(HttpUser):
         Called when user stops testing session
         Cleanup and final logging
         """
-        # Calculate session stats
         session_duration = time.time() - self.start_time
         rps = self.requests_made / session_duration if session_duration > 0 else 0
         
-        # Log session summary
         logger.info("-" * 60)
         logger.info(f"✅ N11 Search User {self.session_id} session completed")
         logger.info(f"📊 Session duration: {session_duration:.2f}s, Requests: {self.requests_made}, RPS: {rps:.2f}")
         logger.info(f"📈 Check Locust web UI for detailed performance metrics")
 
 
-# Alternative user class for different behavior patterns (if needed)
 class N11PowerUser(HttpUser):
     """
     Power user simulation - more aggressive search patterns
@@ -107,8 +93,8 @@ class N11PowerUser(HttpUser):
     """
     
     tasks = [SearchTasks]
-    wait_time = between(0.5, 1.5)  # Faster user
-    weight = 0  # Disabled by default
+    wait_time = between(0.5, 1.5)
+    weight = 0
     
     def on_start(self):
         logger.info("⚡ N11 Power User started - Aggressive search patterns")

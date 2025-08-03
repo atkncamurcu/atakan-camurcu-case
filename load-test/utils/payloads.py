@@ -3,19 +3,16 @@ Test data and payloads for n11.com search testing
 Contains search keywords for different test scenarios
 """
 
-# Positive test keywords - popular search terms on n11.com
 POSITIVE_KEYWORDS = [
     "telefon",
     "bilgisayar", 
     "kitap"
 ]
 
-# Medium length keyword
 MEDIUM_KEYWORDS = [
     "kitap"
 ]
 
-# Brand-based keywords for brand search tests
 BRAND_KEYWORDS = [
     "Samsung",
     "Apple",
@@ -24,7 +21,6 @@ BRAND_KEYWORDS = [
     "Bosch"
 ]
 
-# Keyword combinations for multiple word search tests
 COMBINED_KEYWORDS = [
     "akıllı telefon",
     "kablosuz kulaklık",
@@ -33,7 +29,6 @@ COMBINED_KEYWORDS = [
     "elektrikli süpürge"
 ]
 
-# Foreign language keywords
 FOREIGN_LANGUAGE_KEYWORDS = [
     "smartphone",    # English
     "ordinateur",    # French
@@ -42,7 +37,6 @@ FOREIGN_LANGUAGE_KEYWORDS = [
     "カメラ"          # Japanese (camera)
 ]
 
-# Emoji and special character keywords
 EMOJI_SPECIAL_KEYWORDS = [
     "telefon 📱",
     "bilgisayar 💻",
@@ -51,14 +45,12 @@ EMOJI_SPECIAL_KEYWORDS = [
     "€ ürünler"
 ]
 
-# Negative test cases
 NEGATIVE_KEYWORDS = [
     "",  # Empty search
     "!@#$%^&*()",  # Special characters
     "a" * 201,  # 201 character long string (over 200 chars)
 ]
 
-# Edge case keywords
 EDGE_CASE_KEYWORDS = [
     "a",  # Single character
     "1",  # Single number
@@ -67,18 +59,15 @@ EDGE_CASE_KEYWORDS = [
     "123456789",  # Numbers only
 ]
 
-# Rapid consecutive search terms
 RAPID_SEARCH_SEQUENCE = [
     "telefon",
     "bilgisayar", 
     "kitap"
 ]
 
-# Rapid repeated search (same term multiple times)
 REPEATED_SEARCH_TERM = "telefon"
 REPEATED_SEARCH_COUNT = 5
 
-# All keywords combined for random selection
 ALL_KEYWORDS = POSITIVE_KEYWORDS + NEGATIVE_KEYWORDS + EDGE_CASE_KEYWORDS
 
 def get_search_payload(keyword):
