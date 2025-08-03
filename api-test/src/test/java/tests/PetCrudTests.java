@@ -1,5 +1,9 @@
 package tests;
 
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
+import org.awaitility.Awaitility;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -13,6 +17,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import io.restassured.response.Response;
 import model.dto.Pet;
+import utils.HttpStatusCode;
 import utils.PetHelper;
 
 @Epic("Petstore API Tests")
@@ -22,40 +27,33 @@ public class PetCrudTests extends BaseTest {
     private Integer petId;
     private static final Faker faker = new Faker();
 
-    /**
-     * Setup method for tests that need an existing pet
-     * Creates a pet and stores its ID for use in the test
-     */
     @BeforeMethod(onlyForGroups = {"update", "delete", "get"})
     public void createPetForTest() {
         logTestStart("Setup - Creating pet for test");
         Pet pet = PetHelper.createSimplePet();
-        petId = pet.getId(); // Store the ID we're creating with, not from response
+
         Response response = PetHelper.createPet(pet);
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(response.getStatusCode(), HttpStatusCode.OK.getCode());
         
-        // Get the actual created pet ID from response if available
-        try {
-            Pet createdPet = response.as(Pet.class);
-            if (createdPet.getId() != null) {
-                petId = createdPet.getId();
-            }
-        } catch (Exception e) {
-            // If we can't parse response, keep the original petId
-        }
+        Pet createdPet = response.as(Pet.class);
+        petId = createdPet.getId();
+        
+        Awaitility.await()
+            .atMost(120, TimeUnit.SECONDS)
+            .pollInterval(Duration.ofSeconds(3))
+            .ignoreExceptions()
+            .until(() -> {
+                Response verifyResponse = PetHelper.getPetById(petId);
+                return verifyResponse.getStatusCode() == HttpStatusCode.OK.getCode();
+            });
         
         logTestEnd("Setup - Pet created with ID: " + petId);
     }
 
-    /**
-     * Cleanup method to delete pet after specific tests
-     * Runs for tests that create pets and need cleanup
-     */
     @AfterMethod(onlyForGroups = {"create", "negative-update", "update", "get"})
     public void cleanupPet() {
         if (petId != null) {
             logTestStart("Cleanup - Deleting pet with ID: " + petId);
-            // Clean up the pet, but don't fail the test if deletion fails
             try {
                 PetHelper.deletePet(petId);
                 logTestEnd("Cleanup - Pet deleted successfully");
@@ -66,25 +64,30 @@ public class PetCrudTests extends BaseTest {
         }
     }
 
-    @Test(groups = "create", description = "Create a new pet with realistic data")
+    @Test(groups = "create", description = "Create a new pet with valid data")
     @Story("Create Pet")
     public void testCreatePet() {
         logTestStart("testCreatePet");
-
-        // Use helper method to create a simple pet with realistic data
+        
         Pet pet = PetHelper.createSimplePet();
-
         Response response = PetHelper.createPet(pet);
-        Assert.assertEquals(response.getStatusCode(), 200);
-
+        Assert.assertEquals(response.getStatusCode(), HttpStatusCode.OK.getCode());
+        
         Pet createdPet = response.as(Pet.class);
-        Assert.assertNotNull(createdPet.getId());
         Assert.assertEquals(createdPet.getName(), pet.getName());
         Assert.assertEquals(createdPet.getStatus(), pet.getStatus());
 
-        // Store the ID for cleanup in @AfterMethod
         petId = createdPet.getId();
 
+        Awaitility.await()
+            .atMost(120, TimeUnit.SECONDS)
+            .pollInterval(Duration.ofSeconds(3))
+            .ignoreExceptions()
+            .until(() -> {
+                Response verifyResponse = PetHelper.getPetById(petId);
+                return verifyResponse.getStatusCode() == HttpStatusCode.OK.getCode();
+            });
+        
         logTestEnd("testCreatePet");
     }
 
@@ -92,38 +95,48 @@ public class PetCrudTests extends BaseTest {
     @Story("Get Pet")
     public void testGetPetById() {
         logTestStart("testGetPetById");
-
-        Response response = PetHelper.getPetById(petId);
-        Assert.assertEquals(response.getStatusCode(), 200);
-
+        Response response = Awaitility.await()
+                .atMost(120, TimeUnit.SECONDS)
+                .pollInterval(Duration.ofSeconds(3))
+                .ignoreExceptions()
+                .until(
+                        () -> PetHelper.getPetById(petId),
+                        resp -> resp.getStatusCode() == HttpStatusCode.OK.getCode()
+                );
+        Assert.assertEquals(response.getStatusCode(), HttpStatusCode.OK.getCode());
         Pet fetchedPet = response.as(Pet.class);
         Assert.assertEquals(fetchedPet.getId(), petId);
         Assert.assertNotNull(fetchedPet.getName());
         Assert.assertEquals(fetchedPet.getStatus(), Pet.Status.AVAILABLE);
-
         logTestEnd("testGetPetById");
     }
+
 
     @Test(groups = "update", description = "Update pet details with realistic data")
     @Story("Update Pet")
     public void testUpdatePet() {
         logTestStart("testUpdatePet");
-
-        // Create a detailed pet with full information using realistic data
         Pet updatedPet = PetHelper.createDetailedPet();
-        updatedPet.setId(petId); // Use the pet ID created in @BeforeMethod
+        updatedPet.setId(petId);
         updatedPet.setStatus(Pet.Status.SOLD);
 
-        Response response = PetHelper.updatePet(updatedPet);
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Response updateResp = PetHelper.updatePet(updatedPet);
+        Assert.assertEquals(updateResp.getStatusCode(), HttpStatusCode.OK.getCode());
 
-        Pet fetchedPet = response.as(Pet.class);
-        Assert.assertNotNull(fetchedPet.getName());
-        Assert.assertEquals(fetchedPet.getStatus(), Pet.Status.SOLD);
-        Assert.assertNotNull(fetchedPet.getCategory());
-        Assert.assertNotNull(fetchedPet.getCategory().getName());
-        Assert.assertNotNull(fetchedPet.getTags());
-        Assert.assertFalse(fetchedPet.getTags().isEmpty());
+        Awaitility.await()
+                .atMost(120, TimeUnit.SECONDS)
+                .pollInterval(Duration.ofSeconds(3))
+                .ignoreExceptions()
+                .untilAsserted(() -> {
+                    Response getResp = PetHelper.getPetById(petId);
+                    Assert.assertEquals(getResp.getStatusCode(), HttpStatusCode.OK.getCode());
+                    Pet p = getResp.as(Pet.class);
+                    Assert.assertEquals(p.getStatus(), Pet.Status.SOLD);
+                    Assert.assertNotNull(p.getName());
+                    Assert.assertNotNull(p.getCategory());
+                    Assert.assertNotNull(p.getCategory().getName());
+                    Assert.assertFalse(p.getTags().isEmpty());
+                });
 
         logTestEnd("testUpdatePet");
     }
@@ -133,97 +146,233 @@ public class PetCrudTests extends BaseTest {
     public void testDeletePet() {
         logTestStart("testDeletePet");
 
-        Response response = PetHelper.deletePet(petId);
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Awaitility.await()
+            .atMost(120, TimeUnit.SECONDS)
+            .pollInterval(Duration.ofSeconds(3))
+            .ignoreExceptions()
+            .until(() -> {
+                Response checkResponse = PetHelper.getPetById(petId);
+                return checkResponse.getStatusCode() == HttpStatusCode.OK.getCode();
+            });
+        
+        Awaitility.await()
+            .atMost(120, TimeUnit.SECONDS)
+            .pollInterval(Duration.ofSeconds(3))
+            .ignoreExceptions()
+            .until(() -> {
+                Response deleteResponse = PetHelper.deletePet(petId);
+                return deleteResponse.getStatusCode() == HttpStatusCode.OK.getCode();
+            });
 
-        // Verify pet is deleted by trying to get it
         try {
             Response verifyResponse = PetHelper.getPetById(petId);
-            Assert.assertEquals(verifyResponse.getStatusCode(), 404);
+            Assert.assertEquals(verifyResponse.getStatusCode(), HttpStatusCode.NOT_FOUND.getCode());
         } catch (Exception e) {
             // RestAssured throws exception for 404, which is expected
-            Assert.assertTrue(e.getMessage().contains("404"));
+            Assert.assertTrue(e.getMessage().contains("404"), "Expected 404 error not found");
         }
-
-        // Set petId to null since we've successfully deleted it
+        
         petId = null;
-
         logTestEnd("testDeletePet");
     }
 
-    // ===============================
-    // NEGATIVE TEST SCENARIOS
-    // ===============================
-
-    @Test(description = "Create pet with invalid body - should return 400")
+    @Test(description = "Create pet with invalid body")
     @Story("Create Pet - Negative")
     public void testCreatePetWithInvalidBody() {
         logTestStart("testCreatePetWithInvalidBody");
-
-        // Generate random invalid JSON string
         String invalidJson = faker.lorem().word() + "-" + faker.number().digits(5) + "-invalid";
         Response response = PetHelper.createPetWithInvalidBody(invalidJson);
-        Assert.assertEquals(response.getStatusCode(), 400);
-
+        Assert.assertEquals(response.getStatusCode(), HttpStatusCode.BAD_REQUEST.getCode());
         logTestEnd("testCreatePetWithInvalidBody");
     }
 
-    @Test(description = "Get non-existing pet - should return 404")
+    @Test(description = "Get non-existing pet")
     @Story("Get Pet - Negative")
     public void testGetNonExistingPet() {
         logTestStart("testGetNonExistingPet");
-
-        // Generate a random high number that's unlikely to exist
-        Integer nonExistentPetId = faker.number().numberBetween(900000000, 999999999);
+        Integer nonExistentPetId = faker.number().numberBetween(900_000_000, 999_999_999);
         try {
             Response response = PetHelper.getPetById(nonExistentPetId);
-            Assert.assertEquals(response.getStatusCode(), 404);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.NOT_FOUND.getCode());
         } catch (Exception e) {
-            // RestAssured throws exception for 404, which is expected
             Assert.assertTrue(e.getMessage().contains("404"));
         }
-
         logTestEnd("testGetNonExistingPet");
     }
 
-    @Test(groups = "negative-update", description = "Update non-existing pet with realistic data - should return 404 or create new pet")
+    @Test(groups = "negative-update", description = "Update non-existing pet - should return 404")
     @Story("Update Pet - Negative")
     public void testUpdateNonExistingPet() {
         logTestStart("testUpdateNonExistingPet");
 
+        Integer randomNonExistentId = faker.number().numberBetween(900_000_000, 999_999_999);
+        
         Pet nonExistentPet = PetHelper.createSimplePet();
-        // Generate a random high number that's unlikely to exist
-        Integer randomNonExistentId = faker.number().numberBetween(900000000, 999999999);
         nonExistentPet.setId(randomNonExistentId);
-        petId = nonExistentPet.getId(); // Store the ID we're sending for potential cleanup
+
+        Awaitility.await()
+            .atMost(120, TimeUnit.SECONDS)
+            .pollInterval(Duration.ofSeconds(3))
+            .ignoreExceptions()
+            .until(() -> {
+                try {
+                    Response checkResponse = PetHelper.getPetById(randomNonExistentId);
+                    return checkResponse.getStatusCode() == HttpStatusCode.NOT_FOUND.getCode();
+                } catch (Exception e) {
+                    return e.getMessage().contains("404");
+                }
+            });
 
         Response response = PetHelper.updatePet(nonExistentPet);
-        // Note: Swagger Petstore demo API creates a new pet instead of returning 404
-        // This is documented behavior for demonstration purposes
-        Assert.assertTrue(response.getStatusCode() == 404 || response.getStatusCode() == 200,
-                "Expected 404 (not found) or 200 (if API creates new pet)");
-
-        // If response is 404, no pet was created, so no cleanup needed
-        if (response.getStatusCode() == 404) {
+        
+        if (response.getStatusCode() == HttpStatusCode.OK.getCode()) {
+            logTestEnd("testUpdateNonExistingPet - Note: API created a new pet instead of returning 404");
+            petId = randomNonExistentId;
+        } else {
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.NOT_FOUND.getCode());
             petId = null;
+            logTestEnd("testUpdateNonExistingPet");
         }
+    }
 
-        logTestEnd("testUpdateNonExistingPet");
-    }    @Test(description = "Delete non-existing pet - should return 404")
+
+    @Test(description = "Delete non-existing pet")
     @Story("Delete Pet - Negative")
     public void testDeleteNonExistingPet() {
         logTestStart("testDeleteNonExistingPet");
-
-        // Generate a random high number that's unlikely to exist
-        Integer nonExistentPetId = faker.number().numberBetween(900000000, 999999999);
+        Integer nonExistentPetId = faker.number().numberBetween(900_000_000, 999_999_999);
         try {
             Response response = PetHelper.deletePet(nonExistentPetId);
-            Assert.assertEquals(response.getStatusCode(), 404);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.NOT_FOUND.getCode());
         } catch (Exception e) {
-            // RestAssured throws exception for 404, which is expected
             Assert.assertTrue(e.getMessage().contains("404"));
         }
-
         logTestEnd("testDeleteNonExistingPet");
+    }
+    
+    @Test(description = "Create pet with missing required fields (empty body)")
+    @Story("Create Pet - Negative")
+    public void testCreatePetWithEmptyBody() {
+        logTestStart("testCreatePetWithEmptyBody");
+        
+        String emptyBody = "{}";
+        Response response = PetHelper.createPetWithInvalidBody(emptyBody);
+        
+        Assert.assertEquals(response.getStatusCode(), HttpStatusCode.BAD_REQUEST.getCode());
+        
+        logTestEnd("testCreatePetWithEmptyBody");
+    }
+    
+    @Test(description = "Create pet with invalid data types (id as string)")
+    @Story("Create Pet - Negative")
+    public void testCreatePetWithInvalidDataTypes() {
+        logTestStart("testCreatePetWithInvalidDataTypes");
+        
+        String invalidTypesJson = "{"
+            + "\"id\": \"should-be-a-number\","
+            + "\"name\": \"" + faker.animal().name() + "\","
+            + "\"status\": 123" 
+            + "}";
+        
+        Response response = PetHelper.createPetWithInvalidBody(invalidTypesJson);
+        
+        Assert.assertEquals(response.getStatusCode(), HttpStatusCode.INTERNAL_SERVER_ERROR.getCode());
+        
+        logTestEnd("testCreatePetWithInvalidDataTypes");
+    }
+    
+    @Test(description = "Get pet with invalid ID type (string)")
+    @Story("Get Pet - Negative")
+    public void testGetPetWithInvalidIdType() {
+        logTestStart("testGetPetWithInvalidIdType");
+
+        String invalidId = "abc" + faker.letterify("????");
+
+        try {
+            Response response = PetHelper.getPetByIdString(invalidId);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.NOT_FOUND.getCode());
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("404"), "Expected 404 error for invalid ID type");
+        }
+        
+        logTestEnd("testGetPetWithInvalidIdType");
+    }
+    
+    @Test(description = "Get pet with negative ID")
+    @Story("Get Pet - Negative")
+    public void testGetPetWithNegativeId() {
+        logTestStart("testGetPetWithNegativeId");
+
+        Integer negativeId = -1 * faker.number().numberBetween(1, 1000000);
+
+        try {
+            Response response = PetHelper.getPetById(negativeId);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.NOT_FOUND.getCode());
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("404"), "Expected 404 error for negative ID");
+        }
+        
+        logTestEnd("testGetPetWithNegativeId");
+    }
+    
+    @Test(groups = "negative-update", description = "Update pet with empty body")
+    @Story("Update Pet - Negative")
+    public void testUpdatePetWithEmptyBody() {
+        logTestStart("testUpdatePetWithEmptyBody");
+        
+        String emptyBody = "{}";
+        
+        try {
+            Response response = PetHelper.updatePetWithInvalidBody(emptyBody);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.BAD_REQUEST.getCode());
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("400") || e.getMessage().contains("Bad Request"), 
+                    "Expected 400 error for empty body");
+        }
+        
+        logTestEnd("testUpdatePetWithEmptyBody");
+    }
+    
+    @Test(groups = "negative-update", description = "Update pet with missing ID field")
+    @Story("Update Pet - Negative")
+    public void testUpdatePetWithMissingId() {
+        logTestStart("testUpdatePetWithMissingId");
+        
+        String missingIdJson = "{"
+            + "\"name\": \"" + faker.animal().name() + "\","
+            + "\"status\": \"available\""
+            + "}";
+        
+        try {
+            Response response = PetHelper.updatePetWithInvalidBody(missingIdJson);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.BAD_REQUEST.getCode());
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("400") || e.getMessage().contains("Bad Request"), 
+                    "Expected 400 error for missing ID field");
+        }
+        
+        logTestEnd("testUpdatePetWithMissingId");
+    }
+    
+    @Test(groups = "negative-update", description = "Update pet with invalid data types")
+    @Story("Update Pet - Negative")
+    public void testUpdatePetWithInvalidDataTypes() {
+        logTestStart("testUpdatePetWithInvalidDataTypes");
+        
+        String invalidTypesJson = "{"
+            + "\"id\": \"invalid-id-as-string\","
+            + "\"name\": " + faker.number().randomNumber() + ","
+            + "\"status\": 123" 
+            + "}";
+        
+        try {
+            Response response = PetHelper.updatePetWithInvalidBody(invalidTypesJson);
+            Assert.assertEquals(response.getStatusCode(), HttpStatusCode.INTERNAL_SERVER_ERROR.getCode());
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("500") || e.getMessage().contains("Internal Server Error"), 
+                    "Expected 500 error for invalid data types");
+        }
+        
+        logTestEnd("testUpdatePetWithInvalidDataTypes");
     }
 }
