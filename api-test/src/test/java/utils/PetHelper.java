@@ -93,6 +93,53 @@ public class PetHelper {
     }
 
     /**
+     * Delete a pet by ID string (for negative testing)
+     * @param petIdString String representation of the pet ID (could be invalid)
+     * @return Response of the API call
+     */
+    public static Response deletePetByIdString(String petIdString) {
+        return given()
+                .header("api_key", "special-key")
+                .when()
+                .delete("/pet/" + petIdString)
+                .then()
+                .extract()
+                .response();
+    }
+    
+    /**
+     * Find pets by status
+     * @param status Status value(s) to filter by (available, pending, sold)
+     * @return Response of the API call
+     */
+    public static Response findPetsByStatus(String status) {
+        return given()
+                .header("api_key", "special-key")
+                .queryParam("status", status)
+                .when()
+                .get("/pet/findByStatus")
+                .then()
+                .extract()
+                .response();
+    }
+    
+    /**
+     * Find pets by invalid status (for negative testing)
+     * @param invalidStatus Invalid status value to test with
+     * @return Response of the API call
+     */
+    public static Response findPetsByInvalidStatus(String invalidStatus) {
+        return given()
+                .header("api_key", "special-key")
+                .queryParam("status", invalidStatus)
+                .when()
+                .get("/pet/findByStatus")
+                .then()
+                .extract()
+                .response();
+    }
+
+    /**
      * Delete a pet by ID
      * @param petId ID of the pet to delete
      * @return Response of the API call
