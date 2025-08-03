@@ -4,11 +4,12 @@ This repository contains comprehensive automation and API testing frameworks for
 
 ## Projects Overview
 
-This portfolio includes two complete test automation frameworks:
+This portfolio includes three complete test automation frameworks:
 - **Selenium WebDriver Framework** for UI automation testing
 - **REST API Testing Framework** for comprehensive API testing
+- **Load Testing Framework** for performance testing with Locust
 
-Both projects follow industry best practices with clean architecture, proper reporting, and maintainable code structure.
+All projects follow industry best practices with clean architecture, proper reporting, and maintainable code structure.
 
 ## Projects
 
@@ -57,3 +58,34 @@ mvn clean test
 ```
 
 For more details, check the project [README](/api-test/README.md).
+
+### 3. Load Testing Framework
+
+**Directory:** [/load-test](/load-test)
+
+A professional load testing solution built with Locust to evaluate the performance of n11.com's header search module under various scenarios.
+
+**Key Features:**
+- CloudScraper integration for bypassing Cloudflare protection
+- Minimal headers implementation for efficient requests
+- Comprehensive search scenarios (positive, negative, edge cases)
+- Detailed test metrics and reporting
+- Realistic search patterns simulation
+- Rate limiting and request throttling
+- Various test scenarios including:
+  - Rapid consecutive searches
+  - Repeated searches
+  - Long queries
+  - Special character handling
+  - Different language searches
+
+**How to run:**
+```bash
+cd load-test
+python -m venv venv
+source venv/bin/activate  # macOS/Linux
+pip install -r requirements.txt
+locust -f locustfile.py --host=https://www.n11.com
+```
+
+For more details, check the project [README](/load-test/README.md).

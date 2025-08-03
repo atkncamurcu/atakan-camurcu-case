@@ -78,7 +78,7 @@ locust -f locustfile.py --host=https://www.n11.com --users 1 --spawn-rate 1 --ru
 locust -f locustfile.py --host=https://www.n11.com --users 1 --spawn-rate 1 --run-time 60s --headless
 
 # With CSV report
-locust -f locustfile.py --host=https://www.n11.com --users 1 --spawn-rate 1 --run-time 60s --headless --csv=reports/n11_search_extended_test
+locust -f locustfile.py --host=https://www.n11.com --users 1 --spawn-rate 1 --run-time 60s --headless --csv=reports/n11_search_test
 ```
 
 ## 📊 Test Scenarios
