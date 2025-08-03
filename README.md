@@ -47,18 +47,13 @@ A comprehensive REST API testing framework for Swagger Petstore using Java 11, T
 - Test isolation with proper setup/cleanup
 - Exception handling for negative scenarios
 - Comprehensive DTO models (Pet, Category, Tag, ApiResponse)
+- Image upload testing for pets with multipart/form-data
+- Extensive negative testing (14+ negative scenarios)
 
 **How to run:**
 ```bash
 cd api-test
 mvn clean test
-```
-
-**Generate Allure Report:**
-```bash
-cd api-test
-mvn clean test
-mvn io.qameta.allure:allure-maven:report
 ```
 
 For more details, check the project [README](/api-test/README.md).
