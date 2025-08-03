@@ -11,6 +11,7 @@ A comprehensive REST API testing framework for Swagger Petstore using Java 11, T
 - **Clean Architecture**: Well-structured codebase with DTO pattern and helper utilities
 - **Test Isolation**: Proper @BeforeMethod/@AfterMethod setup for independent test execution
 - **Automated Test Execution**: Maven-based build and test execution
+- **Image Upload Testing**: File upload testing for pet images with multipart/form-data
 
 ## 📋 Prerequisites
 
@@ -30,12 +31,14 @@ src/test/java/
 │   ├── Tag.java               # Tag DTO for pet tagging
 │   └── ApiResponse.java       # Standard API response DTO
 ├── utils/
-│   └── PetHelper.java         # Utility methods for API calls and test data generation
+│   ├── PetHelper.java         # Utility methods for API calls and test data generation
+│   └── HttpStatusCode.java    # Enum for HTTP status codes
 └── tests/
     └── PetCrudTests.java      # Main test class with all CRUD scenarios
 
 src/test/resources/
 ├── allure.properties          # Allure configuration
+├── test-pet-image.jpg         # Sample image for upload testing
 └── testng.xml                 # TestNG test suite configuration
 
 pom.xml                        # Maven dependencies and plugins
@@ -48,18 +51,30 @@ pom.xml                        # Maven dependencies and plugins
 2. **Get Pet by ID** - GET /pet/{id} for existing pet
 3. **Update Pet** - PUT /pet with modified realistic data
 4. **Delete Pet** - DELETE /pet/{id} with verification
+5. **Upload Pet Image** - POST /pet/{id}/uploadImage with multipart/form-data
 
 ### Negative Tests
 1. **Create Pet with Invalid Body** - POST /pet with malformed JSON (expects 400)
-2. **Get Non-existing Pet** - GET /pet/{non-existing-id} (expects 404)
-3. **Update Non-existing Pet** - PUT /pet with non-existing ID
-4. **Delete Non-existing Pet** - DELETE /pet/{non-existing-id} (expects 404)
+2. **Create Pet with Empty Body** - POST /pet with empty JSON body
+3. **Create Pet with Invalid Data Types** - POST /pet with wrong data types
+4. **Get Non-existing Pet** - GET /pet/{non-existing-id} (expects 404)
+5. **Get Pet with Invalid ID Type** - GET /pet/{string-id} (expects 404)
+6. **Get Pet with Negative ID** - GET /pet/{negative-id} (expects 404)
+7. **Update Non-existing Pet** - PUT /pet with non-existing ID
+8. **Update Pet with Empty Body** - PUT /pet with empty JSON body
+9. **Update Pet with Missing ID** - PUT /pet without ID field
+10. **Update Pet with Invalid Data Types** - PUT /pet with wrong data types
+11. **Delete Non-existing Pet** - DELETE /pet/{non-existing-id} (expects 404)
+12. **Delete Pet with Invalid ID Type** - DELETE /pet/{string-id} (expects 400)
+13. **Delete Pet with Negative ID** - DELETE /pet/{negative-id} (expects 404)
+14. **Find Pets by Invalid Status** - GET /pet/findByStatus with invalid status value
 
 ### Test Features
 - **Test Isolation**: Each test runs independently with proper setup/cleanup
 - **Dynamic Data**: Random pet names, categories, and IDs using JavaFaker
 - **Exception Handling**: Graceful handling of RestAssured exceptions for 404 responses
 - **Comprehensive Validation**: Validates both response status codes and response body content
+- **Test Grouping**: Tests organized into groups (create, get, update, delete, upload)
 
 ## 🏃‍♀️ How to Run
 
@@ -71,19 +86,19 @@ mvn clean test
 ### Run Tests and Generate Allure Report
 ```bash
 mvn clean test
-mvn io.qameta.allure:allure-maven:report
+mvn allure:report
 ```
 
 ### Open Allure Report
 ```bash
-# After generating report, open in browser
-open target/site/allure-maven-plugin/index.html
+# Serve and open the report in browser
+mvn allure:serve
 ```
 
 ### Run Specific Test Groups
 ```bash
 # Run only positive tests
-mvn clean test -Dgroups="create,get,update,delete"
+mvn clean test -Dgroups="create,get,update,delete,upload"
 
 # Run only negative tests  
 mvn clean test -Dgroups="negative-update"
@@ -106,11 +121,6 @@ Allure generates comprehensive HTML reports with:
 - **Test categorization** by features and stories
 
 Reports are generated in: `target/site/allure-maven-plugin/`
-
-### TestNG Reports
-Standard TestNG HTML reports are available in:
-- `target/surefire-reports/index.html` - Main report
-- `target/surefire-reports/emailable-report.html` - Email-friendly report
 
 ## 🔧 Configuration
 
@@ -145,6 +155,7 @@ TestNG suite configuration in `src/test/resources/testng.xml`:
 - **RestAssured 5.3.2**: REST API testing with fluent interface
 - **Allure TestNG 2.24.0**: Advanced reporting and test visualization
 - **JavaFaker 1.0.2**: Realistic test data generation
+- **Awaitility 4.2.0**: Asynchronous testing with polling mechanisms
 
 ### Supporting Libraries
 - **Jackson 2.15.2**: JSON serialization/deserialization
