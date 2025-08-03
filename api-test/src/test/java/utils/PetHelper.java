@@ -122,6 +122,22 @@ public class PetHelper {
                 .extract()
                 .response();
     }
+    
+    /**
+     * Update a pet with invalid body for negative testing
+     * @param invalidBody Invalid JSON string
+     * @return Response of the API call
+     */
+    public static Response updatePetWithInvalidBody(String invalidBody) {
+        return given()
+                .header("api_key", "special-key")
+                .body(invalidBody)
+                .when()
+                .put("/pet")
+                .then()
+                .extract()
+                .response();
+    }
 
     /**
      * Create a simple Pet DTO for testing with realistic data
