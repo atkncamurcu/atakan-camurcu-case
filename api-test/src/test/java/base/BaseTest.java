@@ -28,10 +28,8 @@ public class BaseTest {
     public void setUp() {
         logger.info("Setting up API test configuration");
         
-        // Configure RestAssured base URI
         RestAssured.baseURI = BASE_URI;
         
-        // Create request specification
         requestSpec = new RequestSpecBuilder()
                 .setContentType("application/json")
                 .setAccept("application/json")
@@ -39,15 +37,12 @@ public class BaseTest {
                 .log(LogDetail.ALL)
                 .build();
         
-        // Create response specification (simple logging only)
         responseSpec = new ResponseSpecBuilder()
                 .log(LogDetail.ALL)
                 .build();
         
-        // Set global specifications
         RestAssured.requestSpecification = requestSpec;
-        // Don't set global response spec to avoid status code failures
-        
+
         logger.info("API test configuration completed. Base URI: {}", BASE_URI);
     }
     
