@@ -27,7 +27,7 @@ public class PetCrudTests extends BaseTest {
     private Integer petId;
     private static final Faker faker = new Faker();
 
-    @BeforeMethod(onlyForGroups = {"update", "delete", "get"})
+    @BeforeMethod(onlyForGroups = {"update", "delete", "get", "upload"})
     public void createPetForTest() {
         logTestStart("Setup - Creating pet for test");
         Pet pet = PetHelper.createSimplePet();
@@ -50,7 +50,7 @@ public class PetCrudTests extends BaseTest {
         logTestEnd("Setup - Pet created with ID: " + petId);
     }
 
-    @AfterMethod(onlyForGroups = {"create", "negative-update", "update", "get"})
+    @AfterMethod(onlyForGroups = {"create", "negative-update", "update", "get", "upload"})
     public void cleanupPet() {
         if (petId != null) {
             logTestStart("Cleanup - Deleting pet with ID: " + petId);
@@ -427,5 +427,23 @@ public class PetCrudTests extends BaseTest {
         }
         
         logTestEnd("testFindPetsByInvalidStatus");
+    }
+    
+    @Test(description = "Upload valid image for existing pet", groups = {"upload"})
+    @Story("Upload Pet Image")
+    public void testUploadPetImage() {
+        logTestStart("testUploadPetImage");
+        
+        // Upload image for the pet created in BeforeMethod
+        String imagePath = "src/test/resources/test-pet-image.jpg";
+        String metadata = "Test image for pet ID: " + petId;
+        
+        Response uploadResponse = PetHelper.uploadPetImage(petId, imagePath, metadata);
+        
+        // Validate response
+        Assert.assertEquals(uploadResponse.getStatusCode(), HttpStatusCode.OK.getCode());
+        Assert.assertTrue(uploadResponse.getBody().asString().contains("uploaded"));
+        
+        logTestEnd("testUploadPetImage");
     }
 }
